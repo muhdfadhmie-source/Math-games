@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permainan Kuiz Kesedaran Nombor Matematik</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .quiz-container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 35px;
+            width: 100%;
+            max-width: 650px;
+            transition: all 0.3s ease;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 26px;
+            text-align: center;
+        }
+        .progress-container {
+            margin-bottom: 25px;
+        }
+        .progress-bar {
+            background-color: #eef2f5;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            width: 100%;
+        }
+        .progress {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 15px;
+        }
+        .question-box {
+            font-size: 19px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .btn-option {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            outline: none;
+        }
+        .btn-option:hover {
+            background-color: #f7fafc;
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .btn-option:active {
+            transform: translateY(0);
+        }
+        .score-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .score-screen h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        .score-text {
+            font-size: 22px;
+            margin-bottom: 30px;
+            color: #4a5568;
+        }
+        .badge {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 40px;
+            font-size: 17px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+            transition: all 0.2s ease;
+        }
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(118, 75, 162, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- Skrin Kuiz -->
+    <div id="quiz-screen">
+        <h1>🎮 Kuiz Kesedaran Nombor</h1>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+        <div class="stats">
+            <span id="question-number">Soalan 1 / 15</span>
+            <span id="score-display">Markah: 0</span>
+        </div>
+        <div class="question-box" id="question-text">
+            Sila tunggu, soalan sedang dimuatkan...
+        </div>
+        <div class="options-container" id="options-box">
+            <!-- Pilihan jawapan dinamik -->
+        </div>
+    </div>
+
+    <!-- Skrin Tamat/Keputusan -->
+    <div id="score-screen" class="score-screen">
+        <div class="badge" id="badge-icon">🏆</div>
+        <h1>Tahniah! Selesai 🎉</h1>
+        <p class="score-text" id="final-score">Anda mendapat 0 daripada 15 betul.</p>
+        <button class="btn-restart" onclick="restartQuiz()">Main Semula</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            question: "1. Antara berikut, yang manakah merupakan nombor genap?",
+            options: ["15", "27", "42", "59"],
+            correct: 2
+        },
+        {
+            question: "2. Antara nombor berikut, yang manakah ialah nombor perdana?",
+            options: ["9", "13", "15", "21"],
+            correct: 1
+        },
+        {
+            question: "3. Nombor gubahan ialah nombor yang mempunyai lebih daripada dua pembahagi. Antara berikut, yang manakah nombor gubahan?",
+            options: ["2", "7", "8", "11"],
+            correct: 2
+        },
+        {
+            question: "4. Apakah nilai tempat bagi digit 7 dalam nombor 47,215?",
+            options: ["Ratus", "Ribu", "Puluh ribu", "Sa"],
+            correct: 1
+        },
+        {
+            question: "5. Apakah nilai digit bagi 5 dalam nombor 154,892?",
+            options: ["50", "500", "5,000", "50,000"],
+            correct: 3
+        },
+        {
+            question: "6. (Kira Cepat) Anggarkan jawapan terdekat bagi 49 + 51 secara mental.",
+            options: ["80", "90", "100", "110"],
+            correct: 2
+        },
+        {
+            question: "7. Bundarkan 8,367 kepada ratus yang terdekat.",
+            options: ["8,300", "8,360", "8,400", "8,000"],
+            correct: 2
+        },
+        {
+            question: "8. Lengkapkan pola nombor berikut: 12, 19, 26, [ ? ], 40.",
+            options: ["31", "33", "34", "35"],
+            correct: 1
+        },
+        {
+            question: "9. Selesaikan operasi asas ini: 2,450 + 1,230 = ",
+            options: ["3,680", "3,670", "3,580", "3,780"],
+            correct: 0
+        },
+        {
+            question: "10. Hitung perbezaan antara 5,000 dan 1,450.",
+            options: ["3,450", "3,550", "4,550", "3,650"],
+            correct: 1
+        },
+        {
+            question: "11. Cari hasil darab bagi 15 x 6 menggunakan kaedah congak.",
+            options: ["80", "85", "90", "95"],
+            correct: 2
+        },
+        {
+            question: "12. Hitung 144 ÷ 12 = ",
+            options: ["11", "12", "13", "14"],
+            correct: 1
+        },
+        {
+            question: "13. Mengikut petua BODMAS / KurBagiDaTaTo, selesaikan: 12 + 4 x 2",
+            options: ["32", "20", "18", "24"],
+            correct: 1
+        },
+        {
+            question: "14. Selesaikan operasi bergabung ini: (20 - 5) ÷ 3",
+            options: ["5", "15", "3", "4"],
+            correct: 0
+        },
+        {
+            question: "15. Selesaikan: 50 - 10 ÷ 2 + 5",
+            options: ["25", "40", "50", "30"],
+            correct: 2
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    const quizScreen = document.getElementById('quiz-screen');
+    const scoreScreen = document.getElementById('score-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsBox = document.getElementById('options-box');
+    const questionNumber = document.getElementById('question-number');
+    const scoreDisplay = document.getElementById('score-display');
+    const progress = document.getElementById('progress');
+    const finalScore = document.getElementById('final-score');
+    const badgeIcon = document.getElementById('badge-icon');
+
+    function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        scoreScreen.style.display = 'none';
+        quizScreen.style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const currentQuestion = quizData[currentQuestionIndex];
+        
+        questionText.innerText = currentQuestion.question;
+        questionNumber.innerText = `Soalan ${currentQuestionIndex + 1} / ${quizData.length}`;
+        scoreDisplay.innerText = `Markah: ${score}`;
+        
+        const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+        progress.style.width = `${progressPercent}%`;
+
+        optionsBox.innerHTML = '';
+
+        currentQuestion.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('btn-option');
+            button.onclick = () => checkAnswer(index);
+            optionsBox.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selectedIndex) {
+        const currentQuestion = quizData[currentQuestionIndex];
+        if (selectedIndex === currentQuestion.correct) {
+            score++;
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        progress.style.width = '100%';
+        quizScreen.style.display = 'none';
+        scoreScreen.style.display = 'block';
+        
+        finalScore.innerText = `Anda mendapat ${score} daripada ${quizData.length} betul!`;
+        
+        if(score >= 12) {
+            badgeIcon.innerText = "🏆";
+        } else if(score >= 8) {
+            badgeIcon.innerText = "⭐";
+        } else {
+            badgeIcon.innerText = "👍";
+        }
+    }
+
+    function restartQuiz() {
+        startQuiz();
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>
